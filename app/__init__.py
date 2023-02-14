@@ -1,6 +1,8 @@
 from flask_restx import Api
 from flask import Blueprint
 
+from .main.controller.configuration_controller import api as configuration_ns
+
 blueprint = Blueprint('api', __name__)
 authorizations = {
     'apikey': {
@@ -16,6 +18,9 @@ api = Api(
     version='1.0',
     description='a boilerplate for flask restplus (restx) web service',
     authorizations=authorizations,
-    security='apikey'
+    security='apikey',
+    doc=False
 )
 
+# api.init_app(add_specs=False, doc=False)
+api.add_namespace(configuration_ns)

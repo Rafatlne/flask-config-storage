@@ -17,6 +17,6 @@ tests:
 
 run:
 	. venv/bin/activate; \
-	python manage.py run
+	python manage.py
 
 all: clean install tests run

@@ -11,7 +11,7 @@ class Configuration:
         self.creditScore = creditScore
 
     def __repr__(self):
-        return f'<Configuration(name={self.firstName + self.secondName!r})>'
+        return f"<Configuration(name={self.firstName + self.secondName!r})>"
 
 
 class ConfigurationSchema(Schema):
@@ -23,4 +23,4 @@ class ConfigurationSchema(Schema):
 
 
 class ConfigurationDto:
-    api = Namespace('config', description='configuration related operations')
+    api = Namespace("config", description="configuration related operations")

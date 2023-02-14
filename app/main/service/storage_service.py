@@ -20,9 +20,30 @@ class StorageService:
 
     def _set_client(self):
         self.gcs_client = (
-            get_emulated_gcs_client() if _emulate_gcs_server else get_gcs_client()
+            self.get_emulated_gcs_client() if _emulate_gcs_server else self.get_gcs_client()
         )
         self.storage_bucket_object = storage.Bucket(self.gcs_client, _bucket_name)
+
+    @staticmethod
+    def get_emulated_gcs_client():
+        emulated_gcs_client = storage.Client(
+            client_options={
+                "api_endpoint": os.getenv(
+                    "EMULATED_GCS_SERVER_ENDPOINT", "http://localhost:4443"
+                )
+            },
+            credentials=AnonymousCredentials(),
+            project="test",
+        )
+        return emulated_gcs_client
+
+    @staticmethod
+    def get_gcs_client():
+        gcs_client = storage.Client.from_service_account_json(
+            json_credentials_path=_path_to_private_key
+        )
+
+        return gcs_client
 
     def _check_bucket_exists(self):
         if not self.storage_bucket_object.exists():
@@ -51,24 +72,3 @@ class StorageService:
         blob.upload_from_string(
             json.dumps(json_file_data), content_type="application/json"
         )
-
-
-def get_emulated_gcs_client():
-    emulated_gcs_client = storage.Client(
-        client_options={
-            "api_endpoint": os.getenv(
-                "EMULATED_GCS_SERVER_ENDPOINT", "http://localhost:4443"
-            )
-        },
-        credentials=AnonymousCredentials(),
-        project="test",
-    )
-    return emulated_gcs_client
-
-
-def get_gcs_client():
-    gcs_client = storage.Client.from_service_account_json(
-        json_credentials_path=_path_to_private_key
-    )
-
-    return gcs_client

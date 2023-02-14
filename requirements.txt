@@ -1,0 +1,4 @@
+Flask
+flask-restx
+google-cloud-storage
+python-dotenv

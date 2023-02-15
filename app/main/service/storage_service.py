@@ -39,6 +39,9 @@ class StorageService:
 
     @staticmethod
     def get_gcs_client():
+        if not _path_to_private_key:
+            raise BadRequest("Please Properly Setup Google Cloud Storage!")
+
         gcs_client = storage.Client.from_service_account_json(
             json_credentials_path=_path_to_private_key
         )
@@ -63,12 +66,10 @@ class StorageService:
         return blob
 
     def upload_config_file(self, json_file_data, file_name="configuration-file.json"):
-        blob = self.storage_bucket_object.blob(file_name)
-
         if self._check_file_exists(file_name):
             blob = self.get_config_file()
             blob.delete()
-
-        blob.upload_from_string(
+        file_blob = self.storage_bucket_object.blob(file_name)
+        file_blob.upload_from_string(
             json.dumps(json_file_data), content_type="application/json"
         )

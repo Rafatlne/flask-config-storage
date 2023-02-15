@@ -3,3 +3,6 @@ flask-restx
 google-cloud-storage
 python-dotenv
 marshmallow
+pytest
+pytest-mock
+pytest-cov

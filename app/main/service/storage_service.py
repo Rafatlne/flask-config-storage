@@ -3,7 +3,7 @@ import os
 
 from google.auth.credentials import AnonymousCredentials
 from google.cloud import storage
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, NotFound
 
 _path_to_private_key = os.getenv("PATH_TO_GCS_PRIVATE_KEY", None)
 _bucket_name = os.getenv("BUCKET_NAME", "stored-configuration-files")
@@ -50,7 +50,7 @@ class StorageService:
 
     def _check_bucket_exists(self):
         if not self.storage_bucket_object.exists():
-            raise BadRequest("GCS bucket doesn't exists!")
+            raise NotFound("GCS bucket doesn't exists!")
 
     def _check_file_exists(self, file_name):
         file_blob = self.storage_bucket_object.blob(file_name)
@@ -59,7 +59,7 @@ class StorageService:
 
     def get_config_file(self, file_name="configuration-file.json"):
         if not self._check_file_exists(file_name):
-            raise BadRequest("Config file doesn't exists!")
+            raise NotFound("Config file doesn't exists!")
 
         blob = self.storage_bucket_object.blob(file_name)
 

@@ -22,5 +22,4 @@ api = Api(
     doc=False
 )
 
-# api.init_app(add_specs=False, doc=False)
 api.add_namespace(configuration_ns)

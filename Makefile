@@ -13,7 +13,7 @@ install:
 
 tests:
 	. venv/bin/activate; \
-	python manage.py test
+	pytest
 
 run:
 	. venv/bin/activate; \

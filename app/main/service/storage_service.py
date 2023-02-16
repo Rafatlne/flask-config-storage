@@ -107,10 +107,21 @@ class StorageService:
         :param json_file_data: payload of json data of post request that will be uploaded on Google storage
         :param file_name: file name for blob
         """
+        existing_config_file_str_content = ""
+        config_json_data = [json_file_data]
+
         if self._check_file_exists(file_name):
             blob = self.get_config_file()
+            byte_config_file_str_content = blob.download_as_string()
+            existing_config_file_str_content = byte_config_file_str_content.decode(
+                "utf-8"
+            )
             blob.delete()
+
+        if existing_config_file_str_content:
+            config_json_data += json.loads(existing_config_file_str_content)
+
         file_blob = self.storage_bucket_object.blob(file_name)
         file_blob.upload_from_string(
-            json.dumps(json_file_data), content_type="application/json"
+            json.dumps(config_json_data), content_type="application/json"
         )

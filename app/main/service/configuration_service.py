@@ -24,7 +24,7 @@ class ConfigurationService:
         config_file_str_content = byte_config_file_str_content.decode("utf-8")
         configuration_schema = ConfigurationSchema()
         configuration_json_data = configuration_schema.dump(
-            json.loads(config_file_str_content)
+            json.loads(config_file_str_content), many=True
         )
 
         return configuration_json_data

@@ -91,3 +91,11 @@ class TestConfigurationController:
         status_code = response.status_code
 
         assert status_code == 200
+
+
+class TestHealthCheck:
+    def test_application_health_check_will_give_200_status(self, api_test_client):
+        response = api_test_client.get("/")
+        status_code = response.status_code
+
+        assert status_code == 200

@@ -62,19 +62,37 @@ class TestStorageService:
         assert config_json_file.exists()
 
     def test_upload_config_data_as_json_in_gcs(self, mocker):
-        config_json_data = {
+        validated_config_json_data = {
             "firstName": "Foo",
             "secondName": "Foo",
             "address": "Foo",
             "ageInYears": 1,
-            "creditScore": 1,
+            "creditScore": 1.1,
         }
+
+        def get_config_file_in_byte():
+            return b'[{"firstName": "Foo","secondName": "Foo","address": "Foo","ageInYears": 1,"creditScore": 1.1}]'
+
+        def get_config_json_data(key):
+            return {
+                "firstName": "Foo",
+                "secondName": "Foo",
+                "address": "Foo",
+                "ageInYears": 1,
+                "creditScore": 1.1,
+            }
+
         mocker.patch("google.cloud.storage.Client")
         mocker.patch("google.cloud.storage.Bucket")
+        mocker.patch(
+            "google.cloud.storage.Blob.download_as_string",
+            side_effect=get_config_file_in_byte,
+        )
+        mocker.patch("json.loads", side_effect=get_config_json_data)
         storage_service_module._path_to_private_key = "path/to/private/key.json"
         storage_service_module._emulate_gcs_server = False
         storage_service = StorageService()
-        storage_service.upload_config_file(config_json_data)
+        storage_service.upload_config_file(validated_config_json_data)
 
 
 class TestConfigurationService:
@@ -88,7 +106,7 @@ class TestConfigurationService:
         }
 
         def get_config_file_in_byte():
-            return b'{"firstName": "Foo","secondName": "Foo","address": "Foo","ageInYears": 1,"creditScore": 1.1}'
+            return b'[{"firstName": "Foo","secondName": "Foo","address": "Foo","ageInYears": 1,"creditScore": 1.1}]'
 
         mocker.patch("google.cloud.storage.Client")
         mocker.patch(
@@ -100,7 +118,7 @@ class TestConfigurationService:
         configuration_service = ConfigurationService()
         config_json_data = configuration_service.get_configuration()
 
-        assert config_json_data == validated_config_json_data
+        assert config_json_data == [validated_config_json_data]
 
     def test_invalid_json_schema_will_throw_400_status(self, mocker):
         invalid_config_json_data = {
@@ -129,11 +147,31 @@ class TestConfigurationService:
             "ageInYears": 1,
             "creditScore": 1.1,
         }
+
+        def get_config_file_in_byte():
+            return b'[{"firstName": "Foo","secondName": "Foo","address": "Foo","ageInYears": 1,"creditScore": 1.1}]'
+
+        def get_config_json_data(key):
+            return {
+                "firstName": "Foo",
+                "secondName": "Foo",
+                "address": "Foo",
+                "ageInYears": 1,
+                "creditScore": 1.1,
+            }
+
         mocker.patch("google.cloud.storage.Client")
         mocker.patch("google.cloud.storage.Bucket")
+        mocker.patch(
+            "google.cloud.storage.Blob.download_as_string",
+            side_effect=get_config_file_in_byte,
+        )
+        mocker.patch("json.loads", side_effect=get_config_json_data)
         storage_service_module._path_to_private_key = "path/to/private/key.json"
         storage_service_module._emulate_gcs_server = False
         configuration_service = ConfigurationService()
-        response, status = configuration_service.create_or_update_configuration(validated_config_json_data)
+        response, status = configuration_service.create_or_update_configuration(
+            validated_config_json_data
+        )
 
         assert status == 200

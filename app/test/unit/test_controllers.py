@@ -14,7 +14,7 @@ class TestConfigurationController:
         }
 
         def get_config_file_in_byte():
-            return b'{"firstName": "Foo","secondName": "Foo","address": "Foo","ageInYears": 1,"creditScore": 1.1}'
+            return b'[{"firstName": "Foo","secondName": "Foo","address": "Foo","ageInYears": 1,"creditScore": 1.1}]'
 
         mocker.patch("google.cloud.storage.Client")
         mocker.patch(
@@ -27,7 +27,7 @@ class TestConfigurationController:
         response = api_test_client.get("/config/")
         data = response.json
 
-        assert data == validated_config_json_data
+        assert data == [validated_config_json_data]
 
     def test_if_config_file_does_not_exists_it_will_give_404_status_code(
         self, mocker, api_test_client
@@ -77,9 +77,26 @@ class TestConfigurationController:
             "creditScore": 1.1,
         }
 
+        def get_config_file_in_byte():
+            return b'[{"firstName": "Foo","secondName": "Foo","address": "Foo","ageInYears": 1,"creditScore": 1.1}]'
+
+        def get_config_json_data(key):
+            return {
+                "firstName": "Foo",
+                "secondName": "Foo",
+                "address": "Foo",
+                "ageInYears": 1,
+                "creditScore": 1.1,
+            }
+
         mocker.patch("google.cloud.storage.Client")
         mocker.patch("google.cloud.storage.Bucket")
-        mocker.patch("google.cloud.storage.Blob")
+        mocker.patch(
+            "google.cloud.storage.Blob.download_as_string",
+            side_effect=get_config_file_in_byte,
+        )
+        mocker.patch("json.loads", side_effect=get_config_json_data)
+
         storage_service_module._path_to_private_key = "path/to/private/key.json"
         storage_service_module._emulate_gcs_server = False
 

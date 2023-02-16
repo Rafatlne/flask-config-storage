@@ -1,8 +1,6 @@
-from typing import Dict, Tuple
-
 from flask import request
-from flask_restx import Resource
 from flask.typing import ResponseReturnValue
+from flask_restx import Resource
 
 from ..service.configuration_service import ConfigurationService
 from ..util.configuration_dto import ConfigurationDto
@@ -11,7 +9,7 @@ api = ConfigurationDto.api
 
 
 @api.route("/")
-class Configuration(Resource):
+class ConfigurationController(Resource):
     configuration_service = ConfigurationService()
 
     def get(self) -> ResponseReturnValue:
